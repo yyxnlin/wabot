@@ -1,9 +1,9 @@
-#ifndef COLORSENSOR_H
-#define COLORSENSOR_H
+#ifndef COLOURSENSOR_H
+#define COLOURSENSOR_H
 
 #include <Adafruit_AS726x.h>
 
-class ColorSensor {
+class ColourSensor {
 
 private:
     Adafruit_AS726x sensor;

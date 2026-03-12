@@ -1,7 +1,7 @@
-#include "ColorSensor.h"
+#include "ColourSensor.h"
 #include <Arduino.h>
 
-void ColorSensor::begin()
+void ColourSensor::begin()
 {
     if(!sensor.begin())
     {
@@ -14,7 +14,7 @@ void ColorSensor::begin()
     sensor.setIntegrationTime(50);
 }
 
-bool ColorSensor::redDetected()
+bool ColourSensor::redDetected()
 {
     sensor.startMeasurement();
 

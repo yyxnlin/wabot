@@ -14,10 +14,12 @@ void Pump::begin()
 
 void Pump::on()
 {
-    digitalWrite(relayPin, LOW);
+    digitalWrite(relayPin, HIGH);
+    Serial.println("Pump ON");
 }
 
 void Pump::off()
 {
-    digitalWrite(relayPin, HIGH);
+    digitalWrite(relayPin, LOW);
+    Serial.println("Pump OFF");
 }

@@ -1,61 +1,55 @@
-class UltrasonicSensors {
+#include "UltrasonicSensors.h"
+#include <Arduino.h>
 
-  private:
-    int trigLeft, echoLeft;
-    int trigCenter, echoCenter;
-    int trigRight, echoRight;
+UltrasonicSensors::UltrasonicSensors(int tl,int el,int tc,int ec,int tr,int er)
+{
+    trigLeft = tl;
+    echoLeft = el;
 
-    long readSensor(int trig, int echo) {
+    trigCenter = tc;
+    echoCenter = ec;
 
-      digitalWrite(trig, LOW);
-      delayMicroseconds(2);
+    trigRight = tr;
+    echoRight = er;
+}
 
-      digitalWrite(trig, HIGH);
-      delayMicroseconds(10);
-      digitalWrite(trig, LOW);
+void UltrasonicSensors::begin()
+{
+    pinMode(trigLeft, OUTPUT);
+    pinMode(echoLeft, INPUT);
 
-      long duration = pulseIn(echo, HIGH, 30000);
+    pinMode(trigCenter, OUTPUT);
+    pinMode(echoCenter, INPUT);
 
-      if(duration == 0) return -1;
+    pinMode(trigRight, OUTPUT);
+    pinMode(echoRight, INPUT);
+}
 
-      return duration * 0.0343 / 2;
-    }
+long UltrasonicSensors::readSensor(int trig, int echo)
+{
+    digitalWrite(trig, LOW);
+    delayMicroseconds(2);
 
-  public:
+    digitalWrite(trig, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trig, LOW);
 
-    long readings[3];
+    long duration = pulseIn(echo, HIGH, 30000);
 
-    UltrasonicSensors(int tl,int el,int tc,int ec,int tr,int er) {
-      trigLeft = tl;
-      echoLeft = el;
-      trigCenter = tc;
-      echoCenter = ec;
-      trigRight = tr;
-      echoRight = er;
-    }
+    if(duration == 0)
+        return -1;
 
-    void begin() {
+    return duration * 0.0343 / 2;
+}
 
-      pinMode(trigLeft, OUTPUT);
-      pinMode(echoLeft, INPUT);
+void UltrasonicSensors::update()
+{
+    readings[0] = readSensor(trigLeft, echoLeft);
+    delay(60);
 
-      pinMode(trigCenter, OUTPUT);
-      pinMode(echoCenter, INPUT);
+    readings[1] = readSensor(trigCenter, echoCenter);
+    delay(60);
 
-      pinMode(trigRight, OUTPUT);
-      pinMode(echoRight, INPUT);
-    }
-
-    void update() {
-
-      readings[0] = readSensor(trigLeft, echoLeft);
-      delay(60);
-
-      readings[1] = readSensor(trigCenter, echoCenter);
-      delay(60);
-
-      readings[2] = readSensor(trigRight, echoRight);
-      delay(60);
-    }
-
-};
+    readings[2] = readSensor(trigRight, echoRight);
+    delay(60);
+}

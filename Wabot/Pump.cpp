@@ -1,10 +1,23 @@
-class Pump {
-  private:
-    int relayPin;
+#include "Pump.h"
+#include <Arduino.h>
 
-  public:
-    Pump(int pin);
-    void begin();
-    void on();
-    void off();
-};
+Pump::Pump(int pin)
+{
+    relayPin = pin;
+}
+
+void Pump::begin()
+{
+    pinMode(relayPin, OUTPUT);
+    off();
+}
+
+void Pump::on()
+{
+    digitalWrite(relayPin, LOW);
+}
+
+void Pump::off()
+{
+    digitalWrite(relayPin, HIGH);
+}

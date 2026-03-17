@@ -56,8 +56,8 @@ void DriveSystem::moveLeft()
 
 void DriveSystem::moveRight()
 {
-    analogWrite(enLeft, speed + 15);
-    analogWrite(enRight, speed - 15);
+    analogWrite(enLeft, speed + 50);
+    analogWrite(enRight, 0);
 
     digitalWrite(inLeft1, HIGH);
     digitalWrite(inLeft2, LOW);
@@ -104,13 +104,17 @@ void DriveSystem::stop()
 
 void DriveSystem::navigate(long readings[])
 {
-    int threshold = 30;
 
-    int left = readings[0] < threshold;
-    int center = readings[1] < threshold;
-    int right = readings[2] < threshold;
+    int threshold = 10;
+
+    int left = (readings[0] != -1 && readings[0] < threshold);
+    int center = (readings[1] != -1 && readings[1] < threshold);
+    int right = (readings[2] != -1 && readings[2] < threshold);
 
     int state = (left << 2) | (center << 1) | right;
+
+    Serial.print("Drive state: ");
+    Serial.println(state);
 
     switch(state)
     {

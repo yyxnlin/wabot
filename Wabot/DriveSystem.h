@@ -7,7 +7,7 @@ private:
     int enLeft, inLeft1, inLeft2;
     int enRight, inRight1, inRight2;
 
-    int speed = 50;
+    int speed = 200;
 
 public:
     DriveSystem(int enL, int l1, int l2, int enR, int r1, int r2);

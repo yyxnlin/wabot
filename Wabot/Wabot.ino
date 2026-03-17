@@ -20,14 +20,21 @@ void setup()
 
 void loop()
 {
-    // ultrasonic.update();
+    ultrasonic.update();
+    drive.navigate(ultrasonic.readings);
 
-    // drive.navigate(ultrasonic.readings);
     bool status = colour.redDetected();
     Serial.println(status);
-    if (status)
+    if (status){
+        drive.stop();
         pump.on();
-    else
+        
+        while(true){
+            
+        }
+    }
+    else{
         pump.off();
+    }
     delay(500);
 }

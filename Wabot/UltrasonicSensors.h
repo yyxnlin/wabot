@@ -17,6 +17,7 @@ public:
 
     void begin();
     void update();
+    long median(long a, long b, long c);
 };
 
 #endif

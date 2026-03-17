@@ -105,7 +105,14 @@ void DriveSystem::stop()
 void DriveSystem::navigate(long readings[])
 {
 
-    int threshold = 10;
+    int threshold = 30;
+
+    // Serial.print("Readings: ");
+    // Serial.print(readings[0]);
+    // Serial.print(" ");
+    // Serial.print(readings[1]);
+    // Serial.print(" ");
+    // Serial.println(readings[2]);
 
     int left = (readings[0] != -1 && readings[0] < threshold);
     int center = (readings[1] != -1 && readings[1] < threshold);

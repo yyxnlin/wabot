@@ -76,7 +76,7 @@ void UltrasonicSensors::update()
     long c1 = readSensor(trigLeft, echoLeft);
     readings[0] = median(a1, b1, c1);
 
-    delay(250); // allow echoes to clear
+    // delay(250); // allow echoes to clear
 
     // CENTER sensor (3 samples)
     long a2 = readSensor(trigCenter, echoCenter);
@@ -84,7 +84,7 @@ void UltrasonicSensors::update()
     long c2 = readSensor(trigCenter, echoCenter);
     readings[1] = median(a2, b2, c2);
 
-    delay(250);
+    // delay(250);
 
     // RIGHT sensor (3 samples)
     long a3 = readSensor(trigRight, echoRight);
@@ -92,5 +92,5 @@ void UltrasonicSensors::update()
     long c3 = readSensor(trigRight, echoRight);
     readings[2] = median(a3, b3, c3);
 
-    delay(250);
+    // delay(250);
 }

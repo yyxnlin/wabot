@@ -10,7 +10,7 @@ private:
     int speed = 200;
 
 public:
-    DriveSystem(int enL, int l1, int l2, int enR, int r1, int r2);
+    DriveSystem(int enR, int r1, int r2, int enL, int l1, int l2);
 
     void begin();
     void setSpeed(int s);

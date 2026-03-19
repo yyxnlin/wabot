@@ -1,7 +1,7 @@
 #include "DriveSystem.h"
 #include <Arduino.h>
 
-DriveSystem::DriveSystem(int enL,int l1,int l2,int enR,int r1,int r2)
+DriveSystem::DriveSystem(int enR,int r1,int r2,int enL,int l1,int l2)
 {
     enLeft = enL;
     inLeft1 = l1;
@@ -44,8 +44,8 @@ void DriveSystem::moveForward()
 
 void DriveSystem::moveLeft()
 {
-    analogWrite(enLeft, speed - 15);
-    analogWrite(enRight, speed + 15);
+    analogWrite(enLeft, 0);
+    analogWrite(enRight, speed - 20);
 
     digitalWrite(inLeft1, HIGH);
     digitalWrite(inLeft2, LOW);
@@ -56,7 +56,7 @@ void DriveSystem::moveLeft()
 
 void DriveSystem::moveRight()
 {
-    analogWrite(enLeft, speed + 50);
+    analogWrite(enLeft, speed - 20);
     analogWrite(enRight, 0);
 
     digitalWrite(inLeft1, HIGH);
@@ -68,8 +68,8 @@ void DriveSystem::moveRight()
 
 void DriveSystem::moveHardLeft()
 {
-    analogWrite(enLeft, speed - 30);
-    analogWrite(enRight, speed + 30);
+    analogWrite(enLeft, 0);
+    analogWrite(enRight, speed - 20);
 
     digitalWrite(inLeft1, HIGH);
     digitalWrite(inLeft2, LOW);
@@ -80,8 +80,8 @@ void DriveSystem::moveHardLeft()
 
 void DriveSystem::moveHardRight()
 {
-    analogWrite(enLeft, speed + 30);
-    analogWrite(enRight, speed - 30);
+    analogWrite(enLeft, speed - 20);
+    analogWrite(enRight, 0);
 
     digitalWrite(inLeft1, HIGH);
     digitalWrite(inLeft2, LOW);
@@ -126,12 +126,12 @@ void DriveSystem::navigate(long readings[])
     switch(state)
     {
         case 0: moveForward(); break;
-        case 1: moveLeft(); break;
-        case 2: moveHardLeft(); break;
-        case 3: moveHardLeft(); break;
-        case 4: moveRight(); break;
-        case 5: moveForward(); break;
-        case 6: moveHardRight(); break;
+        case 1: stop(); delay(500); moveLeft(); delay(500); stop(); break;
+        case 2: stop(); delay(500); moveHardLeft(); delay(500); stop(); break;
+        case 3: stop(); delay(500); moveHardLeft(); delay(500); stop(); break;
+        case 4: stop(); delay(500); moveRight(); delay(500); stop(); break;
+        case 5: stop(); delay(500); moveForward(); delay(500); stop(); break;
+        case 6: stop(); delay(500); moveHardRight(); delay(500); stop(); break;
         case 7: stop(); break;
     }
 }

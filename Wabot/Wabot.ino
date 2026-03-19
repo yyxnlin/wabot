@@ -8,7 +8,7 @@
 // trig = 8 left, echo = 9 left
 // trig = 7 center, echo = 6 center
 // trig = 4 right, echo = 5 right
-UltrasonicSensors ultrasonic(8, 9, 7, 6, 4, 5);
+UltrasonicSensors ultrasonic(4, 5, 7, 6, 8, 9);
 DriveSystem drive(3, 2, 12, 11, 13, A3);
 ColourSensor colour;
 Pump pump(10);

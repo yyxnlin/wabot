@@ -136,25 +136,33 @@ void DriveSystem::navigate(long readings[])
     switch (state)
     {
     case 0:
+        // 0b000: no obstacles; optionally undo the previous dodge, then continue forward.
         if (lastTurn == 1)
         {
+            // Previous dodge was left, so apply a right correction.
             moveForward();
-            delay(300);
+            delay(800);
             moveRight();
             delay(500);
+            moveForward();
+            delay(800);
             lastTurn = 0;
         }
         else if (lastTurn == 2)
         {
+            // Previous dodge was right, so apply a left correction.
             moveForward();
-            delay(300);
+            delay(800);
             moveLeft();
             delay(500);
+            moveForward();
+            delay(800);
             lastTurn = 0;
         }
         moveForward();
         break; // 0b000
     case 1:
+        // 0b001: obstacle on right; dodge left.
         lastTurn = 1;
         stop();
         delay(500);
@@ -163,6 +171,7 @@ void DriveSystem::navigate(long readings[])
         stop();
         break; // 0b001
     case 2:
+        // 0b010: obstacle in center; dodge left.
         lastTurn = 1;
         stop();
         delay(500);
@@ -171,6 +180,7 @@ void DriveSystem::navigate(long readings[])
         stop();
         break; // 0b010
     case 3:
+        // 0b011: obstacles center + right; dodge left.
         lastTurn = 1;
         stop();
         delay(500);
@@ -179,6 +189,7 @@ void DriveSystem::navigate(long readings[])
         stop();
         break; // 0b011
     case 4:
+        // 0b100: obstacle on left; dodge right.
         lastTurn = 2;
         stop();
         delay(500);
@@ -187,6 +198,7 @@ void DriveSystem::navigate(long readings[])
         stop();
         break; // 0b100
     case 5:
+        // 0b101: obstacles on both sides but center open; inch forward.
         stop();
         delay(500);
         moveForward();
@@ -194,6 +206,7 @@ void DriveSystem::navigate(long readings[])
         stop();
         break; // 0b101
     case 6:
+        // 0b110: obstacles left + center; dodge right.
         lastTurn = 2;
         stop();
         delay(500);
@@ -202,6 +215,7 @@ void DriveSystem::navigate(long readings[])
         stop();
         break; // 0b110
     case 7:
+        // 0b111: blocked on all sides; hold position.
         stop();
         break;
     }

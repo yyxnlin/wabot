@@ -19,12 +19,13 @@ void setup()
 
     ultrasonic.begin();
     drive.begin();
+    drive.setSpeed(200);
     colour.begin();
     pump.begin();
 }
 
 void loop()
-{
+    {
     ultrasonic.update();
     drive.navigate(ultrasonic.readings);
 

@@ -39,8 +39,8 @@ void DriveSystem::setSpeed(int s)
 
 void DriveSystem::moveForward()
 {
-    analogWrite(enLeft, speed);
-    analogWrite(enRight, speed);
+    analogWrite(enLeft, speed - 15);
+    analogWrite(enRight, speed *1.2);
 
     digitalWrite(inLeft1, HIGH);
     digitalWrite(inLeft2, LOW);

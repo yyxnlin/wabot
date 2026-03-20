@@ -1,12 +1,16 @@
 #ifndef DRIVESYSTEM_H
 #define DRIVESYSTEM_H
 
-class DriveSystem {
+class DriveSystem
+{
 
 private:
     int enLeft, inLeft1, inLeft2;
     int enRight, inRight1, inRight2;
+    int speedLeft;
+    int speedRight;
 
+    int lastTurn = 0;
     int speed = 200;
 
 public:
@@ -18,8 +22,8 @@ public:
     void moveForward();
     void moveLeft();
     void moveRight();
-    void moveHardLeft();
-    void moveHardRight();
+    // void moveHardLeft();
+    // void moveHardRight();
     void stop();
 
     void navigate(long readings[]);

@@ -8,7 +8,7 @@
 // l1: 13
 // l2: A3
 
-DriveSystem::DriveSystem(int enR,int r1,int r2,int enL,int l1,int l2)
+DriveSystem::DriveSystem(int enR, int r1, int r2, int enL, int l1, int l2)
 {
     enLeft = enL;
     inLeft1 = l1;
@@ -34,13 +34,17 @@ void DriveSystem::begin()
 
 void DriveSystem::setSpeed(int s)
 {
-    speed = s;
+    speedLeft = s - 15;
+    speedRight = (int)(s * 1.2);
+
+    speedLeft = constrain(speedLeft, 0, 255);
+    speedRight = constrain(speedRight, 0, 255);
 }
 
 void DriveSystem::moveForward()
 {
-    analogWrite(enLeft, speed - 15);
-    analogWrite(enRight, speed *1.2);
+    analogWrite(enLeft, speedLeft);
+    analogWrite(enRight, speedRight);
 
     digitalWrite(inLeft1, HIGH);
     digitalWrite(inLeft2, LOW);
@@ -52,7 +56,7 @@ void DriveSystem::moveForward()
 void DriveSystem::moveLeft()
 {
     analogWrite(enLeft, 0);
-    analogWrite(enRight, speed - 20);
+    analogWrite(enRight, speedRight);
 
     digitalWrite(inLeft1, HIGH);
     digitalWrite(inLeft2, LOW);
@@ -63,7 +67,7 @@ void DriveSystem::moveLeft()
 
 void DriveSystem::moveRight()
 {
-    analogWrite(enLeft, speed - 20);
+    analogWrite(enLeft, speedLeft);
     analogWrite(enRight, 0);
 
     digitalWrite(inLeft1, HIGH);
@@ -73,29 +77,29 @@ void DriveSystem::moveRight()
     digitalWrite(inRight2, LOW);
 }
 
-void DriveSystem::moveHardLeft()
-{
-    analogWrite(enLeft, 0);
-    analogWrite(enRight, speed - 20);
+// void DriveSystem::moveHardLeft()
+// {
+//     analogWrite(enLeft, 0);
+//     analogWrite(enRight, speedRight);
 
-    digitalWrite(inLeft1, HIGH);
-    digitalWrite(inLeft2, LOW);
+//     digitalWrite(inLeft1, HIGH);
+//     digitalWrite(inLeft2, LOW);
 
-    digitalWrite(inRight1, HIGH);
-    digitalWrite(inRight2, LOW);
-}
+//     digitalWrite(inRight1, HIGH);
+//     digitalWrite(inRight2, LOW);
+// }
 
-void DriveSystem::moveHardRight()
-{
-    analogWrite(enLeft, speed - 20);
-    analogWrite(enRight, 0);
+// void DriveSystem::moveHardRight()
+// {
+//     analogWrite(enLeft, speedLeft);
+//     analogWrite(enRight, 0);
 
-    digitalWrite(inLeft1, HIGH);
-    digitalWrite(inLeft2, LOW);
+//     digitalWrite(inLeft1, HIGH);
+//     digitalWrite(inLeft2, LOW);
 
-    digitalWrite(inRight1, HIGH);
-    digitalWrite(inRight2, LOW);
-}
+//     digitalWrite(inRight1, HIGH);
+//     digitalWrite(inRight2, LOW);
+// }
 
 void DriveSystem::stop()
 {
@@ -111,7 +115,6 @@ void DriveSystem::stop()
 
 void DriveSystem::navigate(long readings[])
 {
-
     int threshold = 10;
 
     // Serial.print("Readings: ");
@@ -130,15 +133,76 @@ void DriveSystem::navigate(long readings[])
     Serial.print("Drive state: ");
     Serial.println(state);
 
-    switch(state)
+    switch (state)
     {
-        case 0: moveForward(); break; // 0b000
-        case 1: stop(); delay(500); moveLeft(); delay(500); stop(); break; // 0b001
-        case 2: stop(); delay(500); moveHardLeft(); delay(500); stop(); break; // 0b010
-        case 3: stop(); delay(500); moveHardLeft(); delay(500); stop(); break; // 0b011
-        case 4: stop(); delay(500); moveRight(); delay(500); stop(); break; // 0b100
-        case 5: stop(); delay(500); moveForward(); delay(500); stop(); break; // 0b101
-        case 6: stop(); delay(500); moveHardRight(); delay(500); stop(); break; // 0b110
-        case 7: stop(); break;
+    case 0:
+        if (lastTurn == 1)
+        {
+            moveForward();
+            delay(300);
+            moveRight();
+            delay(500);
+            lastTurn = 0;
+        }
+        else if (lastTurn == 2)
+        {
+            moveForward();
+            delay(300);
+            moveLeft();
+            delay(500);
+            lastTurn = 0;
+        }
+        moveForward();
+        break; // 0b000
+    case 1:
+        lastTurn = 1;
+        stop();
+        delay(500);
+        moveLeft();
+        delay(500);
+        stop();
+        break; // 0b001
+    case 2:
+        lastTurn = 1;
+        stop();
+        delay(500);
+        moveLeft();
+        delay(500);
+        stop();
+        break; // 0b010
+    case 3:
+        lastTurn = 1;
+        stop();
+        delay(500);
+        moveLeft();
+        delay(500);
+        stop();
+        break; // 0b011
+    case 4:
+        lastTurn = 2;
+        stop();
+        delay(500);
+        moveRight();
+        delay(500);
+        stop();
+        break; // 0b100
+    case 5:
+        stop();
+        delay(500);
+        moveForward();
+        delay(500);
+        stop();
+        break; // 0b101
+    case 6:
+        lastTurn = 2;
+        stop();
+        delay(500);
+        moveRight();
+        delay(500);
+        stop();
+        break; // 0b110
+    case 7:
+        stop();
+        break;
     }
 }

@@ -1,8 +1,7 @@
-#include "UltrasonicSensors.h"
-#include "DriveSystem.h"
-#include "ColourSensor.h"
-#include "Pump.h"
-
+#include "../lib/UltrasonicSensors.h"
+#include "../lib/DriveSystem.h"
+#include "../lib/ColourSensor.h"
+#include "../lib/Pump.h"
 
 
 // trig = 8 left, echo = 9 left

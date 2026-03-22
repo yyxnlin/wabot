@@ -3,6 +3,15 @@
 
 #include <Adafruit_AS726x.h>
 
+struct ColourReadings {
+    float violet;
+    float blue;
+    float green;
+    float yellow;
+    float orange;
+    float red;
+};
+
 class ColourSensor {
 
 private:
@@ -11,6 +20,7 @@ private:
 public:
     void begin();
     bool redDetected();
+    ColourReadings readAllColours();
 };
 
 #endif

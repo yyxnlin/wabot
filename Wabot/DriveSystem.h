@@ -1,21 +1,28 @@
 #ifndef DRIVESYSTEM_H
 #define DRIVESYSTEM_H
 
+/**
+ * Differential-drive motor control + timed obstacle-avoidance sequences.
+ * Pin wiring is documented in Wabot.ino next to the DriveSystem constructor.
+ */
 class DriveSystem
 {
-
 private:
     int enLeft, inLeft1, inLeft2;
     int enRight, inRight1, inRight2;
     int speedLeft;
     int speedRight;
-    const int obstacleThreshold = 20;   // Distance (cm) for obstacle detection.
-    const int turnTimeMs = 450;         // Turn duration (ms) for each left/right turn in the sequence.
-    const int passObstacleTimeMs = 900; // Forward duration (ms) for each straight segment in the sequence.
+
+    // Ultrasonic readings below this distance (cm) count as "obstacle present".
+    const int obstacleThreshold = 20;
+    // Standard detour timing (used when obstacle is clearly on one side).
+    const int turnTimeMs = 450;
+    const int passObstacleTimeMs = 900;
+    // Longer moves when the center region is involved (see avoidObstacle codes 3–4).
     const int extraTurnTimeMs = 900;
     const int extraPassObstacleTimeMs = 1600;
 
-
+    // whereObstacle: 1 = left, 2 = right, 3 = left-ish center, 4 = center / right-ish center
     void avoidObstacle(int whereObstacle);
 
 public:
@@ -29,6 +36,7 @@ public:
     void moveRight();
     void stop();
 
+    /** readings[0]=left, [1]=center, [2]=right; distances in cm or -1 if invalid. */
     void navigate(long readings[]);
 };
 

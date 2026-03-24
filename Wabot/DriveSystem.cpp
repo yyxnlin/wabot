@@ -1,12 +1,7 @@
 #include "DriveSystem.h"
 #include <Arduino.h>
 
-// enR: 3
-// r1: 2
-// r2: 12
-// enL: 11
-// l1: 13
-// l2: A3
+// Motor wiring (matches Wabot.ino): enR=3, r1=2, r2=12 | enL=11, l1=13, l2=A3
 
 DriveSystem::DriveSystem(int enR, int r1, int r2, int enL, int l1, int l2)
 {
@@ -34,6 +29,7 @@ void DriveSystem::begin()
 
 void DriveSystem::setSpeed(int s)
 {
+    // Slight asymmetry to help the chassis drive straight (tune if it drifts).
     speedLeft = s - 15;
     speedRight = (int)(s * 1.2);
 
@@ -55,6 +51,7 @@ void DriveSystem::moveForward()
 
 void DriveSystem::moveLeft()
 {
+    // Pivot-style turn: left wheel off, right wheel drives.
     analogWrite(enLeft, 0);
     analogWrite(enRight, speedRight);
 
@@ -91,13 +88,51 @@ void DriveSystem::stop()
 
 void DriveSystem::avoidObstacle(int whereObstacle)
 {
-    // 1 = left
-    // 2 = right
-    // 3 = left-ish center
-    // 4 = right-ish center or super center
+    /*
+     * whereObstacle selects which detour template to run (same physical sequence shape,
+     * different timings / mirror). Forward-only segments (no reverse driving).
+     *
+     * 1 = obstacle on left    -> dodge to the right (standard timings)
+     * 2 = obstacle on right   -> dodge to the left  (standard timings)
+     * 3 = left-ish center     -> longer turns/straights, same shape as 4
+     * 4 = center / right-ish  -> same as 3 (extra timings)
+     */
 
-    // Full detour with forward-only segments (no reverse).
-    if (whereObstacle == 2) // obstacle in the right
+    // --- Obstacle on the left: step right, forward, weave, end aligned forward ---
+    if (whereObstacle == 1)
+    {
+        moveRight();
+        delay(turnTimeMs);
+        stop();
+        delay(50); // brief settle after each segment
+        moveForward();
+        delay(passObstacleTimeMs);
+        stop();
+        delay(50);
+        moveLeft();
+        delay(turnTimeMs);
+        stop();
+        delay(50);
+        moveForward();
+        delay(passObstacleTimeMs);
+        stop();
+        delay(50);
+        moveLeft();
+        delay(turnTimeMs);
+        stop();
+        delay(50);
+        moveForward();
+        delay(passObstacleTimeMs);
+        stop();
+        delay(50);
+        moveRight();
+        delay(turnTimeMs);
+        stop();
+        delay(50);
+    }
+
+    // --- Obstacle on the right: mirror of case 1 ---
+    if (whereObstacle == 2)
     {
         moveLeft();
         delay(turnTimeMs);
@@ -128,38 +163,9 @@ void DriveSystem::avoidObstacle(int whereObstacle)
         stop();
         delay(50);
     }
-    else if (whereObstacle == 1) // obstacle in the left
-    {
-        moveRight();
-        delay(turnTimeMs);
-        stop();
-        delay(50);
-        moveForward();
-        delay(passObstacleTimeMs);
-        stop();
-        delay(50);
-        moveLeft();
-        delay(turnTimeMs);
-        stop();
-        delay(50);
-        moveForward();
-        delay(passObstacleTimeMs);
-        stop();
-        delay(50);
-        moveLeft();
-        delay(turnTimeMs);
-        stop();
-        delay(50);
-        moveForward();
-        delay(passObstacleTimeMs);
-        stop();
-        delay(50);
-        moveRight();
-        delay(turnTimeMs);
-        stop();
-        delay(50);
-    }
-    else if (whereObstacle == 3) // obstacle in left ish center
+
+    // --- Center-heavy: longer turn and forward durations (same path family as final else) ---
+    else if (whereObstacle == 3)
     {
         moveRight();
         delay(extraTurnTimeMs);
@@ -190,8 +196,9 @@ void DriveSystem::avoidObstacle(int whereObstacle)
         stop();
         delay(50);
     }
-    else // obstacle in right ish center or center
+    else
     {
+        // whereObstacle == 4 (or any other code): same geometry as 3, extra timings
         moveRight();
         delay(extraTurnTimeMs);
         stop();
@@ -221,48 +228,48 @@ void DriveSystem::avoidObstacle(int whereObstacle)
         stop();
         delay(50);
     }
+
     moveForward();
 }
 
 void DriveSystem::navigate(long readings[])
 {
-    // 1 = left
-    // 2 = right
-    // 3 = left-ish center
-    // 4 = right-ish center or super center
+    // Booleans: 1 if that sensor sees something closer than obstacleThreshold.
     int left = (readings[0] != -1 && readings[0] < obstacleThreshold);
     int center = (readings[1] != -1 && readings[1] < obstacleThreshold);
     int right = (readings[2] != -1 && readings[2] < obstacleThreshold);
 
+    // 3-bit pattern: bits [left][center][right] — used as switch index 0..7
     int state = (left << 2) | (center << 1) | right;
 
     Serial.print("Drive state: ");
     Serial.println(state);
 
+    // state = 0..7: bits (left, center, right) as LCR e.g. state 6 = 0b110 = left+center
     switch (state)
     {
-    case 0:
+    case 0: // 000 clear
         moveForward();
         break;
-    case 1: // 0 0 1 obstacle in the right
+    case 1: // 001 right only
         avoidObstacle(2);
         break;
-    case 2: // 0 1 0 obtacle in dead center
+    case 2: // 010 center only
         avoidObstacle(4);
         break;
-    case 3: // 0 1 1 obstacle in right-ish center 
+    case 3: // 011 center + right
         avoidObstacle(4);
         break;
-    case 4: // 1 0 0 obstacle in left
+    case 4: // 100 left only
         avoidObstacle(1);
         break;
-    case 5: // 1 0 1 
+    case 5: // 101 left + right (narrow gap)
         moveForward();
         break;
-    case 6: // 1 1 0 left ish center
+    case 6: // 110 left + center
         avoidObstacle(3);
         break;
-    case 7:
+    case 7: // 111 all blocked
         stop();
         break;
     }

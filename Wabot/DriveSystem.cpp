@@ -53,18 +53,6 @@ void DriveSystem::moveForward()
     digitalWrite(inRight2, LOW);
 }
 
-void DriveSystem::moveBackward()
-{
-    analogWrite(enLeft, speedLeft);
-    analogWrite(enRight, speedRight);
-
-    digitalWrite(inLeft1, LOW);
-    digitalWrite(inLeft2, HIGH);
-
-    digitalWrite(inRight1, LOW);
-    digitalWrite(inRight2, HIGH);
-}
-
 void DriveSystem::moveLeft()
 {
     analogWrite(enLeft, 0);
@@ -89,30 +77,6 @@ void DriveSystem::moveRight()
     digitalWrite(inRight2, LOW);
 }
 
-// void DriveSystem::moveHardLeft()
-// {
-//     analogWrite(enLeft, 0);
-//     analogWrite(enRight, speedRight);
-
-//     digitalWrite(inLeft1, HIGH);
-//     digitalWrite(inLeft2, LOW);
-
-//     digitalWrite(inRight1, HIGH);
-//     digitalWrite(inRight2, LOW);
-// }
-
-// void DriveSystem::moveHardRight()
-// {
-//     analogWrite(enLeft, speedLeft);
-//     analogWrite(enRight, 0);
-
-//     digitalWrite(inLeft1, HIGH);
-//     digitalWrite(inLeft2, LOW);
-
-//     digitalWrite(inRight1, HIGH);
-//     digitalWrite(inRight2, LOW);
-// }
-
 void DriveSystem::stop()
 {
     analogWrite(enLeft, 0);
@@ -125,110 +89,147 @@ void DriveSystem::stop()
     digitalWrite(inRight2, LOW);
 }
 
-void DriveSystem::recordMove(DriveSystem::ActionType action, DriveSystem::Direction dir, int durationMs)
+void DriveSystem::avoidObstacle(int whereObstacle)
 {
-    if (moveCount >= maxMoves)
-    {
-        return;
-    }
-    moves[moveCount++] = DriveSystem::MovementState{action, dir, durationMs};
-}
+    // 1 = left
+    // 2 = right
+    // 3 = left-ish center
+    // 4 = right-ish center or super center
 
-void DriveSystem::clearMoves()
-{
-    moveCount = 0;
-}
-
-void DriveSystem::executeRecorded(DriveSystem::ActionType action, DriveSystem::Direction dir, int durationMs)
-{
-    (void)action;
-    switch (dir)
+    // Full detour with forward-only segments (no reverse).
+    if (whereObstacle == 2) // obstacle in the right
     {
-    case DriveSystem::DIR_LEFT:
         moveLeft();
-        break;
-    case DriveSystem::DIR_RIGHT:
-        moveRight();
-        break;
-    case DriveSystem::DIR_FORWARD:
+        delay(turnTimeMs);
+        stop();
+        delay(50);
         moveForward();
-        break;
-    case DriveSystem::DIR_BACKWARD:
-        moveBackward();
-        break;
+        delay(passObstacleTimeMs);
+        stop();
+        delay(50);
+        moveRight();
+        delay(turnTimeMs);
+        stop();
+        delay(50);
+        moveForward();
+        delay(passObstacleTimeMs);
+        stop();
+        delay(50);
+        moveRight();
+        delay(turnTimeMs);
+        stop();
+        delay(50);
+        moveForward();
+        delay(passObstacleTimeMs);
+        stop();
+        delay(50);
+        moveLeft();
+        delay(turnTimeMs);
+        stop();
+        delay(50);
     }
-    delay(durationMs);
-    stop();
-    delay(50);
-}
-
-void DriveSystem::retraceMoves()
-{
-    // Reverse each recorded state to return to the original track:
-    // left <-> right, forward -> backward.
-    while (moveCount > 0)
+    else if (whereObstacle == 1) // obstacle in the left
     {
-        DriveSystem::MovementState s = moves[moveCount - 1];
-        moveCount--;
-
-        DriveSystem::Direction reverseDir = s.dir;
-        if (s.dir == DriveSystem::DIR_LEFT)
-            reverseDir = DriveSystem::DIR_RIGHT;
-        else if (s.dir == DriveSystem::DIR_RIGHT)
-            reverseDir = DriveSystem::DIR_LEFT;
-        else if (s.dir == DriveSystem::DIR_FORWARD)
-            reverseDir = DriveSystem::DIR_BACKWARD;
-
-        executeRecorded(s.action, reverseDir, s.durationMs);
+        moveRight();
+        delay(turnTimeMs);
+        stop();
+        delay(50);
+        moveForward();
+        delay(passObstacleTimeMs);
+        stop();
+        delay(50);
+        moveLeft();
+        delay(turnTimeMs);
+        stop();
+        delay(50);
+        moveForward();
+        delay(passObstacleTimeMs);
+        stop();
+        delay(50);
+        moveLeft();
+        delay(turnTimeMs);
+        stop();
+        delay(50);
+        moveForward();
+        delay(passObstacleTimeMs);
+        stop();
+        delay(50);
+        moveRight();
+        delay(turnTimeMs);
+        stop();
+        delay(50);
     }
-}
-
-void DriveSystem::avoidObstacle(bool dodgeLeft)
-{
-    // Record the avoidance sequence so we can retrace it later once clear.
-    clearMoves();
-
-    // Turn away from obstacle.
-    recordMove(DriveSystem::ACTION_TURN, dodgeLeft ? DriveSystem::DIR_LEFT : DriveSystem::DIR_RIGHT, turnTimeMs);
-    executeRecorded(DriveSystem::ACTION_TURN, dodgeLeft ? DriveSystem::DIR_LEFT : DriveSystem::DIR_RIGHT, turnTimeMs);
-
-    // Move forward (go around).
-    recordMove(DriveSystem::ACTION_MOVE, DriveSystem::DIR_FORWARD, passObstacleTimeMs);
-    executeRecorded(DriveSystem::ACTION_MOVE, DriveSystem::DIR_FORWARD, passObstacleTimeMs);
-
-    // Turn back toward original direction.
-    recordMove(DriveSystem::ACTION_TURN, dodgeLeft ? DriveSystem::DIR_RIGHT : DriveSystem::DIR_LEFT, turnTimeMs);
-    executeRecorded(DriveSystem::ACTION_TURN, dodgeLeft ? DriveSystem::DIR_RIGHT : DriveSystem::DIR_LEFT, turnTimeMs);
-
-    // Move forward (past obstacle).
-    recordMove(DriveSystem::ACTION_MOVE, DriveSystem::DIR_FORWARD, passObstacleTimeMs);
-    executeRecorded(DriveSystem::ACTION_MOVE, DriveSystem::DIR_FORWARD, passObstacleTimeMs);
-
-    // Turn toward original path line.
-    recordMove(DriveSystem::ACTION_TURN, dodgeLeft ? DriveSystem::DIR_RIGHT : DriveSystem::DIR_LEFT, turnTimeMs);
-    executeRecorded(DriveSystem::ACTION_TURN, dodgeLeft ? DriveSystem::DIR_RIGHT : DriveSystem::DIR_LEFT, turnTimeMs);
-
-    // Move forward (back to original path).
-    recordMove(DriveSystem::ACTION_MOVE, DriveSystem::DIR_FORWARD, passObstacleTimeMs);
-    executeRecorded(DriveSystem::ACTION_MOVE, DriveSystem::DIR_FORWARD, passObstacleTimeMs);
-
-    // Final turn to face original travel direction.
-    recordMove(DriveSystem::ACTION_TURN, dodgeLeft ? DriveSystem::DIR_LEFT : DriveSystem::DIR_RIGHT, turnTimeMs);
-    executeRecorded(DriveSystem::ACTION_TURN, dodgeLeft ? DriveSystem::DIR_LEFT : DriveSystem::DIR_RIGHT, turnTimeMs);
-
-    // Now wait until sensors say "clear", then retrace in navigate().
-    pendingRetrace = true;
+    else if (whereObstacle == 3) // obstacle in left ish center
+    {
+        moveRight();
+        delay(extraTurnTimeMs);
+        stop();
+        delay(50);
+        moveForward();
+        delay(extraPassObstacleTimeMs);
+        stop();
+        delay(50);
+        moveLeft();
+        delay(extraTurnTimeMs);
+        stop();
+        delay(50);
+        moveForward();
+        delay(extraPassObstacleTimeMs);
+        stop();
+        delay(50);
+        moveLeft();
+        delay(extraTurnTimeMs);
+        stop();
+        delay(50);
+        moveForward();
+        delay(extraPassObstacleTimeMs);
+        stop();
+        delay(50);
+        moveRight();
+        delay(extraTurnTimeMs);
+        stop();
+        delay(50);
+    }
+    else // obstacle in right ish center or center
+    {
+        moveRight();
+        delay(extraTurnTimeMs);
+        stop();
+        delay(50);
+        moveForward();
+        delay(extraPassObstacleTimeMs);
+        stop();
+        delay(50);
+        moveLeft();
+        delay(extraTurnTimeMs);
+        stop();
+        delay(50);
+        moveForward();
+        delay(extraPassObstacleTimeMs);
+        stop();
+        delay(50);
+        moveLeft();
+        delay(extraTurnTimeMs);
+        stop();
+        delay(50);
+        moveForward();
+        delay(extraPassObstacleTimeMs);
+        stop();
+        delay(50);
+        moveRight();
+        delay(extraTurnTimeMs);
+        stop();
+        delay(50);
+    }
+    moveForward();
 }
 
 void DriveSystem::navigate(long readings[])
 {
-    // Serial.print("Readings: ");
-    // Serial.print(readings[0]);
-    // Serial.print(" ");
-    // Serial.print(readings[1]);
-    // Serial.print(" ");
-    // Serial.println(readings[2]);
-
+    // 1 = left
+    // 2 = right
+    // 3 = left-ish center
+    // 4 = right-ish center or super center
     int left = (readings[0] != -1 && readings[0] < obstacleThreshold);
     int center = (readings[1] != -1 && readings[1] < obstacleThreshold);
     int right = (readings[2] != -1 && readings[2] < obstacleThreshold);
@@ -241,39 +242,27 @@ void DriveSystem::navigate(long readings[])
     switch (state)
     {
     case 0:
-        if (pendingRetrace)
-        {
-            retraceMoves();
-            pendingRetrace = false;
-        }
         moveForward();
-        break; // 0b000
-    case 1:
-        // 0b001: obstacle on right; detour left and return.
-        avoidObstacle(true);
-        break; // 0b001
-    case 2:
-        // 0b010: obstacle in center; prefer left detour.
-        avoidObstacle(true);
-        break; // 0b010
-    case 3:
-        // 0b011: obstacles center + right; detour left and return.
-        avoidObstacle(true);
-        break; // 0b011
-    case 4:
-        // 0b100: obstacle on left; detour right and return.
-        avoidObstacle(false);
-        break; // 0b100
-    case 5:
-        // 0b101: both sides blocked but center open; continue forward.
+        break;
+    case 1: // 0 0 1 obstacle in the right
+        avoidObstacle(2);
+        break;
+    case 2: // 0 1 0 obtacle in dead center
+        avoidObstacle(4);
+        break;
+    case 3: // 0 1 1 obstacle in right-ish center 
+        avoidObstacle(4);
+        break;
+    case 4: // 1 0 0 obstacle in left
+        avoidObstacle(1);
+        break;
+    case 5: // 1 0 1 
         moveForward();
-        break; // 0b101
-    case 6:
-        // 0b110: obstacles left + center; detour right and return.
-        avoidObstacle(false);
-        break; // 0b110
+        break;
+    case 6: // 1 1 0 left ish center
+        avoidObstacle(3);
+        break;
     case 7:
-        // 0b111: blocked on all sides; hold position.
         stop();
         break;
     }

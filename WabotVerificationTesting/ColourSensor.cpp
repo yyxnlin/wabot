@@ -14,22 +14,6 @@ void ColourSensor::begin()
     sensor.setIntegrationTime(50);
 }
 
-ColourSensor::ColourReadings ColourSensor::readAllColours() {
-    sensor.startMeasurement();
-    while(!sensor.dataReady())
-        delay(5);
-
-    ColourReadings readings;
-    readings.violet = sensor.readCalibratedViolet();
-    readings.blue   = sensor.readCalibratedBlue();
-    readings.green  = sensor.readCalibratedGreen();
-    readings.yellow = sensor.readCalibratedYellow();
-    readings.orange = sensor.readCalibratedOrange();
-    readings.red    = sensor.readCalibratedRed();
-
-    return readings;
-}
-
 bool ColourSensor::redDetected()
 {
     sensor.startMeasurement();
@@ -52,4 +36,22 @@ bool ColourSensor::redDetected()
     }
 
     return false;
+}
+
+ColourReadings ColourSensor::readAllColours()
+{
+    sensor.startMeasurement();
+
+    while (!sensor.dataReady())
+        delay(5);
+
+    ColourReadings readings;
+    readings.violet = sensor.readCalibratedViolet();
+    readings.blue = sensor.readCalibratedBlue();
+    readings.green = sensor.readCalibratedGreen();
+    readings.yellow = sensor.readCalibratedYellow();
+    readings.orange = sensor.readCalibratedOrange();
+    readings.red = sensor.readCalibratedRed();
+
+    return readings;
 }

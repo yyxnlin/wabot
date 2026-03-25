@@ -1,6 +1,6 @@
 #include <Arduino.h>
-#include "../lib/UltrasonicSensors.h"
-#include "../lib/ColourSensor.h"
+#include "UltrasonicSensors.h"
+#include "ColourSensor.h"
 
 UltrasonicSensors ultrasonic(4, 5, 7, 6, 8, 9);
 ColourSensor colour;

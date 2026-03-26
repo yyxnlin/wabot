@@ -31,7 +31,7 @@ bool ColourSensor::redDetected()
     if(red >= violet && red >= blue && red >= green && red >= yellow &&
        orange >= violet && orange >= blue && orange >= green && orange >= yellow)
     {
-        Serial.println("RED DETECTED");
+        // Serial.println("RED DETECTED");
         return true;
     }
 

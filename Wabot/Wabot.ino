@@ -42,8 +42,15 @@ void loop()
         // Stop driving; run pump until power cycle (infinite loop by design).
         drive.stop();
         pump.on();
+        while (colour.redDetected())
+        {
+            delay(10);
+        }
+        delay(100);
+        pump.off();
         while (true)
         {
+            drive.stop();
         }
     }
     else

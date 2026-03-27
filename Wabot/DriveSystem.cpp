@@ -84,10 +84,13 @@ void DriveSystem::stop()
 
     digitalWrite(inRight1, LOW);
     digitalWrite(inRight2, LOW);
+    delay(50);
+
 }
 
 void DriveSystem::avoidObstacle(int whereObstacle)
 {
+    
     /*
      * whereObstacle selects which detour template to run (same physical sequence shape,
      * different timings / mirror). Forward-only segments (no reverse driving).
@@ -98,42 +101,42 @@ void DriveSystem::avoidObstacle(int whereObstacle)
      * 4 = center / right-ish  -> same as 3 (extra timings)
      */
 
+
+    Serial.print("whereobstacle: ");
+    Serial.println(whereObstacle);
     // --- Obstacle on the left: step right, forward, weave, end aligned forward ---
     if (whereObstacle == 1)
     {
+        stop();
+        delay(150);
         moveRight();
         delay(turnTimeMs);
         stop();
-        delay(50); // brief settle after each segment
         moveForward();
         delay(passObstacleTimeMs);
         stop();
-        delay(50);
         moveLeft();
         delay(turnTimeMs);
         stop();
-        delay(50);
         moveForward();
         delay(passObstacleTimeMs);
         stop();
-        delay(50);
         moveLeft();
         delay(turnTimeMs);
         stop();
-        delay(50);
         moveForward();
         delay(passObstacleTimeMs);
         stop();
-        delay(50);
         moveRight();
-        delay(turnTimeMs);
+        delay(275);
         stop();
-        delay(50);
     }
 
     // --- Obstacle on the right: mirror of case 1 ---
-    if (whereObstacle == 2)
+    else if (whereObstacle == 2)
     {
+        stop();
+        delay(50);
         moveLeft();
         delay(turnTimeMs);
         stop();
@@ -167,6 +170,8 @@ void DriveSystem::avoidObstacle(int whereObstacle)
     // --- Center-heavy: longer turn and forward durations (same path family as final else) ---
     else if (whereObstacle == 3)
     {
+        stop();
+        delay(50);
         moveRight();
         delay(extraTurnTimeMs);
         stop();
@@ -196,9 +201,11 @@ void DriveSystem::avoidObstacle(int whereObstacle)
         stop();
         delay(50);
     }
-    else
+    else if (whereObstacle == 4)
     {
         // whereObstacle == 4 (or any other code): same geometry as 3, extra timings
+        stop();
+        delay(50);
         moveRight();
         delay(extraTurnTimeMs);
         stop();

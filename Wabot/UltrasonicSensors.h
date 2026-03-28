@@ -1,6 +1,7 @@
 #ifndef ULTRASONICSENSORS_H
 #define ULTRASONICSENSORS_H
 
+// Controls the three ultrasonic sensors (left, center, right) used for obstacle detection. Each sensor is read three times per update cycle, and the median value is stored in the readings array to provide a stable distance measurement.
 class UltrasonicSensors {
 
 private:
